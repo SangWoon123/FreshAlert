@@ -11,8 +11,9 @@
           variant="solo-filled"
           density="compact"
           class="login__input"
+          v-model="code"
         ></v-text-field>
-        <v-btn variant="outlined" class="login__button" color="#3e8f88" @click="move">로그인</v-btn>
+        <v-btn variant="outlined" class="login__button" color="#3e8f88" @click="auth">로그인</v-btn>
       </div>
     </div>
   </div>
@@ -21,19 +22,31 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import LoadingPage from '@/components/view/Loading.vue'
-import router from '@/router';
+import router from '@/router'
+import { authInstance } from '@/api/authApi'
 
 const isLoading = ref(true)
+const code = ref('')
 
-function move(){
-  // 로그인 검증 로직 추가
-  router.push('/product')
+async function auth() {
+  try {
+    // 로그인 검증 로직 추가
+    const response = await authInstance('/login').post('', {
+      code: code.value
+    })
+
+    if (response.status === 200) {
+      router.push('/product')
+    }
+  } catch (error) {
+    console.error('로그인 오류:', error.response ? error.response.data : error.message)
+  }
 }
 
 onMounted(() => {
   setTimeout(() => {
     isLoading.value = false
-  }, 500) // 로딩 화면을 0.5초 동안 표시
+  }, 500)
 })
 </script>
 
