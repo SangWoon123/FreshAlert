@@ -1,0 +1,7 @@
+flask
+zappa # aws 람다 빌드툴
+flask_sqlalchemy # flask orm
+flask_cors # cors
+python-dotenv # 환경변수
+pymysql
+flask-migrate
