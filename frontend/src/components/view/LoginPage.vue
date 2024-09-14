@@ -1,8 +1,6 @@
 <template>
   <div class="login">
-    <LoadingPage v-if="isLoading" />
-
-    <div v-else class="login__content">
+    <div class="login__content">
       <div class="login__field">
         <h2>로그인</h2>
 
@@ -12,6 +10,7 @@
           density="compact"
           class="login__input"
           v-model="code"
+          type="password"
         ></v-text-field>
         <v-btn variant="outlined" class="login__button" color="#3e8f88" @click="auth">로그인</v-btn>
       </div>
@@ -20,12 +19,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import LoadingPage from '@/components/view/Loading.vue'
+import { ref } from 'vue'
 import router from '@/router'
 import { authInstance } from '@/api/authApi'
 
-const isLoading = ref(true)
 const code = ref('')
 
 async function auth() {
@@ -42,17 +39,11 @@ async function auth() {
     console.error('로그인 오류:', error.response ? error.response.data : error.message)
   }
 }
-
-onMounted(() => {
-  setTimeout(() => {
-    isLoading.value = false
-  }, 500)
-})
 </script>
 
 <style lang="scss" scoped>
 .login {
-  height: 100%;
+  height: 939px; /* Z 플립의 높이에 맞춤 */
   display: flex;
   justify-content: center;
   align-items: center;
