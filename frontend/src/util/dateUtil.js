@@ -6,6 +6,13 @@ export function dateUtil() {
     const day = String(d.getDate()).padStart(2, '0')
     return `${year}-${month}-${day}`
   }
-
-  return { showDate }
+  function totalDay() {
+    const days = []
+    const daysInMonth = 31
+    for (let i = 1; i <= daysInMonth; i++) {
+      days.push(i)
+    }
+    return days
+  }
+  return { showDate, totalDay }
 }
