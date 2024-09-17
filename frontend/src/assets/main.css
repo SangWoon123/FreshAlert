@@ -2,7 +2,6 @@
 
 #app {
   max-width: 100%; /* Z 플립의 너비에 맞춤 */
-  height: 939px; /* Z 플립의 높이에 맞춤 */
   width: 100%;
   margin: 0 auto;
   background-color: #ffffff;
