@@ -16,14 +16,14 @@
 
 
 #### Architecture
-<img width="800" src="https://github.com/user-attachments/assets/7a2df17b-042e-4c5d-8712-add021e992c8"/>
+<img width="600" src="https://github.com/user-attachments/assets/4b44cc20-ecbd-4920-8a05-5f7b4c8f6d39"/>
 
 #### UI
 <div style="display:flex; width:200px;">
   <img width="200"  src="https://github.com/user-attachments/assets/4b053320-a386-43fc-ab87-6ead930ec09a"/>
-  <img width="200" src="https://github.com/user-attachments/assets/d981de96-2247-4347-9dbb-f44e46547ada"/>
+  <img width="200" src="https://github.com/user-attachments/assets/42e7cd88-18d1-4192-b722-fb6233499df3"/>
   <img width="200" src="https://github.com/user-attachments/assets/53620fe2-8d9c-4992-bdd8-1f2de8f5b616"/>
-  <img width="200" src="https://github.com/user-attachments/assets/463cc742-d9f6-4560-804d-256e56661871"/>
+  <img width="200" src="https://github.com/user-attachments/assets/45bf956a-0bbc-418e-a84e-c31178cad222"/>
 </div>
 
 
