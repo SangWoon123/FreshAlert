@@ -98,7 +98,7 @@ def get_products():
             SELECT p.id, pn.name, p.quantity, p.expiration, p.checked 
             FROM product p 
             JOIN product_name pn ON p.product_name_id = pn.id 
-            WHERE p.expiration > curdate()
+            WHERE p.expiration > curdate() AND p.expiration < curdate() + INTERVAL 7 DAY
             ORDER BY p.expiration
             """
             cursor.execute(sql)
