@@ -11,6 +11,8 @@ import App from './App.vue'
 import router from './router'
 import '@/assets/font.css'
 import { ko } from 'vuetify/locale'
+import VueGtag from 'vue-gtag'
+
 const app = createApp(App)
 
 const vuetify = createVuetify({
@@ -41,5 +43,8 @@ const vuetify = createVuetify({
 app.use(createPinia())
 app.use(router)
 app.use(vuetify)
+app.use(VueGtag, {
+  config: { id: import.meta.env.GOOGLE_ANALYTICS }
+})
 
 app.mount('#app')
