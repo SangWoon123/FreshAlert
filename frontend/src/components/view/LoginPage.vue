@@ -2,15 +2,16 @@
   <div class="login">
     <div class="login__content">
       <div class="login__field">
-        <h2>로그인</h2>
+        <h2>매니저 로그인</h2>
 
         <v-text-field
-          label="번호를 입력하세요"
+          label="코드를 입력하세요"
           variant="solo-filled"
           density="compact"
           class="login__input"
           v-model="code"
           type="password"
+          flat
         ></v-text-field>
         <v-btn variant="outlined" class="login__button" color="#3e8f88" @click="auth">로그인</v-btn>
       </div>

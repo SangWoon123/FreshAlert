@@ -33,7 +33,7 @@ const emit = defineEmits(['click'])
 <style lang="scss" scoped>
 .container {
   border: none;
-  width: 120px;
+  width: 110px;
   height: 45px;
   border-radius: 8px;
   display: flex;
