@@ -1,67 +1,96 @@
 <template>
   <div class="product">
-    <div class="header">
-      <h2>재고파악</h2>
-      <v-btn color="red" @click="deleteProduct">삭제</v-btn>
-    </div>
-    <div class="search">
-      <v-text-field density="compact" variant="outlined"> </v-text-field>
-      <v-btn color="green">검색</v-btn>
-    </div>
-    <div class="nav">
-      <span>제품명</span>
-      <span>유통기한</span>
-      <span>개수</span>
-      <span>꺼냄여부 ✅</span>
-    </div>
-    <v-divider thickness="3px"></v-divider>
-    <div class="list">
-      <div v-for="(item, index) in productStore.productList" :key="index" class="list-item">
-        <span :style="style(index)">{{ item.name }}</span>
-        <span :style="style(index)">{{ item.expiration }}</span>
-        <span :style="style(index)">{{ item.quantity }}</span>
-        <input type="checkbox" v-model="item.checked" />
+    <LoadingPage v-if="isLoading" />
+    <div v-else>
+      <!-- 헤더 -->
+      <div class="header">
+        <h2>재고파악</h2>
       </div>
-    </div>
-
-    <div class="footer">
-      <v-btn color="green" variant="outlined" @click="openDiaryModal">유통기한 등록</v-btn>
-      <v-btn color="green" @click="openProductModal">제품명 등록</v-btn>
-      <v-btn color="red" @click="openDeleteModal">제품명 삭제</v-btn>
-    </div>
-
-    <!-- 팝업배경흐리게 -->
-    <div v-if="productModal.isOpen.value" class="backdrop">
-      <div class="add-dialog" @click.stop>
-        <ProductNameAdd @close="closeProductModal" />
+      <!-- 검색창 -->
+      <div class="search">
+        <v-text-field v-model="searchQuery" label="검색" density="compact" variant="outlined">
+        </v-text-field>
       </div>
-    </div>
-
-    <div v-if="diaryModal.isOpen.value" class="backdrop">
-      <div class="add-dialog" @click.stop>
-        <DiaryProductAdd @close="closeDiaryModal" />
+      <div class="nav">
+        <span>제품명</span>
+        <span>유통기한</span>
+        <span>개수</span>
+        <span>꺼냄여부 ✅</span>
       </div>
-    </div>
+      <v-divider thickness="3px"></v-divider>
 
-    <div v-if="deleteModal.isOpen.value" class="backdrop">
-      <div class="add-dialog">
-        <DiaryProductDelete @close="closeDeleteModal" />
+      <!-- 유통기한 제품리스트 -->
+      <div v-for="(item, index) in filteredProductList" :key="index">
+        <!-- 날짜구분선 -->
+        <div class="date" v-if="item.isNewDate">
+          <div>{{ item.expiration }}</div>
+          <v-divider color="#3F51B5" thickness="1px"></v-divider>
+        </div>
+        <!-- 유제품 리스트 -->
+        <div class="list">
+          <div class="list-item">
+            <span>{{ item.name }}</span>
+            <span>{{ item.expiration }}</span>
+            <span>{{ item.quantity }}</span>
+            <input type="checkbox" :disabled="isChecked(item.expiration)" />
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        <CustomButton
+          color="#3E8F88"
+          icon
+          name="유통기한"
+          type="추가하기"
+          @click="openDiaryModal"
+        />
+        <CustomButton
+          color="#3E8F88"
+          icon
+          name="제품명"
+          type="추가하기"
+          @click="openProductModal"
+        />
+        <CustomButton color="#C2546E" name="제품명" type="삭제하기" @click="openDeleteModal" />
+      </div>
+
+      <!-- 팝업배경흐리게 -->
+      <div v-if="productModal.isOpen.value" class="backdrop">
+        <div class="add-dialog" @click.stop>
+          <ProductNameAdd @close="closeProductModal" />
+        </div>
+      </div>
+
+      <div v-if="diaryModal.isOpen.value" class="backdrop">
+        <div class="add-dialog" @click.stop>
+          <DiaryProductAdd @close="closeDiaryModal" />
+        </div>
+      </div>
+
+      <div v-if="deleteModal.isOpen.value" class="backdrop">
+        <div class="add-dialog">
+          <DiaryProductDelete @close="closeDeleteModal" />
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import ProductNameAdd from '../modal/ProductNameAdd.vue'
+import LoadingPage from '@/components/view/Loading.vue'
 import DiaryProductAdd from '../modal/DiaryProductAdd.vue'
 import DiaryProductDelete from '../modal/DiaryProductDelete.vue'
+import CustomButton from '../CustomButton.vue'
 import { useModal } from '@/util/useModal'
 import { authInstance } from '@/api/authApi'
 import { useProductList } from '@/stores/product'
 import { onMounted } from 'vue'
-import { watch } from 'vue'
 
+// 로딩
+const isLoading = ref(true)
 //모달 상태
 const productModal = useModal()
 const diaryModal = useModal()
@@ -79,41 +108,57 @@ const closeDiaryModal = () => diaryModal.close()
 const openDeleteModal = () => deleteModal.open()
 const closeDeleteModal = () => deleteModal.close()
 
-const products = ref([])
-onMounted(async () => {
-  const response = await authInstance('/products').get('')
-  productStore.productList = response.data
-})
-
-const style = (index) => {
-  return {
-    textDecoration: productStore.productList[index].checked ? 'line-through' : 'none'
-  }
+// 오늘 날짜 + 1일을 계산하는 함수
+const getTomorrow = () => {
+  const today = new Date()
+  today.setDate(today.getDate() + 1)
+  return today.toISOString().split('T')[0]
 }
 
-async function deleteProduct() {
-  // const deleteList = productStore.productList.filter((item) => item.checked === true)
-  // const response = await authInstance('/product').delete('', { deleteList })
-  console.log('제품 삭제')
+// 제품의 만료일이 내일인 경우만 셀력션 활성화
+const isChecked = (expiration) => {
+  return expiration !== getTomorrow()
 }
 
-watch(
-  products,
-  (newItems) => {
-    newItems.forEach((item) => {
-      if (item.checked && !item.delete_date) {
-        item.delete_date = new Date().toISOString()
+// 검색
+const searchQuery = ref('')
+// 검색어 필터링 추가 및 날짜 변화지점 확인
+const filteredProductList = computed(() => {
+  let previousDate = null
+  return productStore.productList
+    .filter((item) => item.name.toLowerCase().includes(searchQuery.value.toLowerCase()))
+    .map((item) => {
+      const isNewDate = previousDate !== item.expiration
+      previousDate = item.expiration
+      return {
+        ...item,
+        isNewDate
       }
     })
-  },
-  { deep: true }
-)
+})
+
+onMounted(async () => {
+  try {
+    // 유통기한 리스트 가져오기
+    const response = await authInstance('/products').get('')
+    productStore.productList = response.data
+    // 제품명 리스트
+    const productNames = await authInstance('/products-name').get('')
+    productStore.productNameList = productNames.data
+    // 날짜 리스트
+    productStore.updateDateList()
+  } catch (error) {
+    console.error('데이터 로드 실패:', error)
+  } finally {
+    isLoading.value = false
+  }
+})
 </script>
 
 <style lang="scss" scoped>
 .product {
   width: 100%;
-  height: 100%;
+  min-height: 100vh;
   background-color: #ffffff;
   position: relative;
   .header {
@@ -177,7 +222,6 @@ watch(
     .list-item {
       font-size: 12px;
       display: flex;
-      gap: 10px;
       padding: 10px;
       justify-content: space-between;
       align-items: center;
@@ -186,7 +230,16 @@ watch(
       font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
     }
   }
-
+  .date {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    :nth-child(1) {
+      width: 200px;
+      padding: 1rem;
+      color: #3f51b5;
+    }
+  }
   .footer {
     width: 100%;
     height: 70px;
