@@ -48,8 +48,9 @@ def add_product_name():
         with connection.cursor() as cursor:
             sql = "INSERT INTO product_name (name) VALUES (%s)"
             cursor.execute(sql, (data['name'],))
+            inserted_id = cursor.lastrowid # 마지막 삽입된 id
         connection.commit()
-        return jsonify({'name': data['name']})
+        return jsonify({'id': inserted_id,'name': data['name']})
     finally:
         connection.close()
 
