@@ -15,7 +15,7 @@
     <div class="table-container">
       <table>
         <tbody>
-          <tr v-for="(item, index) in productNames" :key="index" class="item">
+          <tr v-for="(item, index) in productList.productNameList" :key="index" class="item">
             <td>{{ item.name }}</td>
             <td><input type="checkbox" :value="item.id" v-model="selectedIds" /></td>
           </tr>
@@ -32,28 +32,24 @@
 
 <script setup>
 import { authInstance } from '@/api/authApi'
-import { onMounted, ref } from 'vue'
+import {  ref } from 'vue'
+import { useProductList } from '../../stores/product'
 defineEmits(['close'])
-const productNames = ref([])
-const selectedIds=ref([])
+
+const productList = useProductList()
+const selectedIds = ref([])
 
 async function removeDelete() {
   // 선택된 모든 ID에 대해 삭제 요청
   for (const id of selectedIds.value) {
-    await authInstance(`/product/${id}`).delete()
+    await authInstance(`/product/${id}`).delete('')
   }
   // 삭제 후 선택된 ID 배열 초기화
   selectedIds.value = []
   // 제품명 목록 갱신
-  fetchProductNames()
+  productList.productNameList = productList.productNameList.filter(item => !selectedIds.value.includes(item.id))
 }
 
-const fetchProductNames = async () => {
-  const response = await authInstance('/products-name').get()
-  productNames.value = response.data.map((item) => item)
-}
-
-onMounted(fetchProductNames)
 </script>
 
 <style lang="scss" scoped>

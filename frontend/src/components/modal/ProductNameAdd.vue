@@ -14,22 +14,31 @@
 
     <v-card-actions class="action-buttons">
       <v-btn color="red" @click="$emit('close')">취소</v-btn>
-      <v-btn color="primary" @click="submit">등록</v-btn>
+      <v-btn color="primary" @click="submit"> 등록 </v-btn>
     </v-card-actions>
   </v-card>
 </template>
 
 <script setup>
 import { authInstance } from '@/api/authApi'
+import { useProductList } from '../../stores/product'
 import { ref } from 'vue'
 const emit = defineEmits(['close'])
 
 const name = ref('')
 
 async function submit() {
+  if (!name.value) {
+    return
+  }
   // 제품명 등록
-  await authInstance('/product-name').post('', {
+  const response = await authInstance('/product-name').post('', {
     name: name.value
+  })
+  //상태관리 업데이트
+  useProductList().productNameList.push({
+    name: response.data.name,
+    id: response.data.id
   })
   // 모달 닫기
   emit('close')
