@@ -1,10 +1,15 @@
 <template>
   <div :class="['card']">
+    <!-- 아이콘 -->
     <div :class="['icon-content', statusClass]">
       <span v-if="status === 'success'" class="mdi mdi-check icon"></span>
       <span v-else class="mdi mdi-alert-circle-outline icon"></span>
     </div>
-    <h2 :style="{ color: status === 'success' ? '#74c4bd' : '#CE6C75' }">{{ message }}</h2>
+    <!-- 메시지 -->
+    <div class="message" :style="{ color: status === 'success' ? '#74c4bd' : '#CE6C75' }">
+      <h2>{{ message }}</h2>
+      <div>{{ errorMessage }}</div>
+    </div>
   </div>
 </template>
 
@@ -15,6 +20,10 @@ const props = defineProps({
   status: {
     type: String,
     required: true
+  },
+  errorMessage: {
+    type: String,
+    required: false
   }
 })
 
@@ -66,9 +75,11 @@ const statusClass = computed(() => {
   color: white;
   animation: scaleUp 0.5s ease-in-out;
 }
-.close {
-  font-size: 25px;
-  align-self: flex-end;
+.message {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .success {
