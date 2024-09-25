@@ -24,10 +24,20 @@ const props = defineProps({
   errorMessage: {
     type: String,
     required: false
+  },
+  type: {
+    type: String,
+    required: false,
+    default: 'register'
   }
 })
 
 const message = computed(() => {
+  // 삭제타입의 요청이 들어왔을때
+  if (props.type === 'delete') {
+    return props.status === 'success' ? '삭제완료' : '삭제실패'
+  }
+  // 등록타입의 요청이 들어왔을때
   return props.status === 'success' ? '등록완료' : '등록실패'
 })
 const statusClass = computed(() => {
