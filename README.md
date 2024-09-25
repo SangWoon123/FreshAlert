@@ -16,7 +16,7 @@
 
 
 #### Architecture
-<img width="600" src="https://github.com/user-attachments/assets/4b44cc20-ecbd-4920-8a05-5f7b4c8f6d39"/>
+<img width="600" src="https://github.com/user-attachments/assets/73ba9402-9685-4218-80a4-59006f455351"/>
 
 #### UI
 <div style="display:flex; width:200px;">
