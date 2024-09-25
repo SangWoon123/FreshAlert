@@ -51,6 +51,10 @@ def add_product_name():
             inserted_id = cursor.lastrowid # 마지막 삽입된 id
         connection.commit()
         return jsonify({'id': inserted_id,'name': data['name']})
+    except Exception as e:
+        connection.rollback()
+        # 500 에러 중복에러
+        return jsonify({'message': str(e)}),500
     finally:
         connection.close()
 
