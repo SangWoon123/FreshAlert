@@ -1,5 +1,6 @@
 <template>
-  <div class="card">
+  <AlertModal v-if="isModal.isOpen.value" @close="isModal.close()" :status="status" />
+  <div v-else class="card">
     <v-row d-flex justify="center">
       <v-col cols="12" lg="6" md="8" sm="10">
         <v-card ref="form">
@@ -57,6 +58,14 @@ import { computed, onMounted, ref } from 'vue'
 import { dateUtil } from '@/util/dateUtil'
 import { useProductList } from '@/stores/product'
 import CustomSelect from '../CustomSelect.vue'
+import { useModal } from '../../util/useModal'
+import AlertModal from '../AlertModal.vue'
+
+// 등록성공 여부 상태값
+const isModal = useModal()
+const status = ref('success')
+
+// 현재모달 상태 close
 const emit = defineEmits(['close'])
 
 const searchQuery = ref('')
@@ -89,36 +98,46 @@ const date = computed(() => `${selectedYear.value}-${selectedMonth.value}-${sele
 const productStroe = useProductList()
 
 async function add() {
-  const response = await authInstance('/product').post('', {
-    name_id: selectedProduct.value,
-    quantity: selectedQuantity.value,
-    expiration: date.value
-  })
+  try {
+    const response = await authInstance('/product').post('', {
+      name_id: selectedProduct.value,
+      quantity: selectedQuantity.value,
+      expiration: date.value
+    })
 
-  const expiration = dateUtil().showDate(date.value)
+    const expiration = dateUtil().showDate(date.value)
 
-  const data = {
-    name: productNames.value.filter((product) => product.id === selectedProduct.value)[0].name,
-    quantity: selectedQuantity.value,
-    expiration: expiration,
-    checked: false
-  }
+    const data = {
+      name: productNames.value.filter((product) => product.id === selectedProduct.value)[0].name,
+      quantity: selectedQuantity.value,
+      expiration: expiration,
+      checked: false
+    }
 
-  // 유통기한이 동일한 제품 목록을 찾음
-  const sameExpirationIndex = productStroe.productList.findIndex(
-    (product) => product.expiration === expiration
-  )
-  // 유통기한이 동일한 항목이 있으면 그 뒤에 추가, 없으면 그냥 마지막에 추가
-  if (sameExpirationIndex !== -1) {
-    // 유통기한이 동일한 항목 뒤에 추가
-    productStroe.productList.splice(sameExpirationIndex, 0, data)
-  } else {
-    // 유통기한이 동일한 항목이 없으면 그냥 마지막에 추가
-    productStroe.productList.push(data)
-  }
+    // 유통기한이 동일한 제품 목록을 찾음
+    const sameExpirationIndex = productStroe.productList.findIndex(
+      (product) => product.expiration === expiration
+    )
+    // 유통기한이 동일한 항목이 있으면 그 뒤에 추가, 없으면 그냥 마지막에 추가
+    if (sameExpirationIndex !== -1) {
+      // 유통기한이 동일한 항목 뒤에 추가
+      productStroe.productList.splice(sameExpirationIndex, 0, data)
+    } else {
+      // 유통기한이 동일한 항목이 없으면 그냥 마지막에 추가
+      productStroe.productList.push(data)
+    }
+  } catch (error) {
+    console.error('유제품 등록 실패: ', error)
+    status.value = 'fail'
+  } finally {
+    // 성공 메시지
+    isModal.open()
 
-  if (response.status === 200) {
-    emit('close')
+    // 모달 닫기
+    setTimeout(() => {
+      isModal.close()
+      emit('close')
+    }, 1000)
   }
 }
 

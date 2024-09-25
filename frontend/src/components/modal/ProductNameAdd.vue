@@ -1,5 +1,11 @@
 <template>
-  <v-card class="mx-auto product-card" width="344">
+  <AlertModal
+    v-if="isModal.isOpen.value"
+    @close="isModal.close()"
+    :status="status"
+    :error-message="errorMessage"
+  />
+  <v-card v-else class="mx-auto product-card" width="344">
     <v-card-titl color="green">
       <h2 style="color: #3e8f88">제품등록</h2>
     </v-card-titl>
@@ -20,28 +26,56 @@
 </template>
 
 <script setup>
+import AlertModal from '../AlertModal.vue'
 import { authInstance } from '@/api/authApi'
 import { useProductList } from '../../stores/product'
 import { ref } from 'vue'
+import { useModal } from '../../util/useModal'
+
+// 등록상태 성공여부
+const isModal = useModal()
+const status = ref('success')
+const errorMessage = ref('')
+
 const emit = defineEmits(['close'])
-
 const name = ref('')
-
 async function submit() {
   if (!name.value) {
     return
   }
-  // 제품명 등록
-  const response = await authInstance('/product-name').post('', {
-    name: name.value
-  })
-  //상태관리 업데이트
-  useProductList().productNameList.push({
-    name: response.data.name,
-    id: response.data.id
-  })
-  // 모달 닫기
-  emit('close')
+  try {
+    // 제품명 등록
+    const response = await authInstance('/product-name').post('', {
+      name: name.value
+    })
+    if (response.status === 200) {
+      //상태관리 업데이트
+      useProductList().productNameList.push({
+        name: response.data.name,
+        id: response.data.id
+      })
+    }
+  } catch (error) {
+    console.error('제품 등록 오류: ', error)
+    status.value = 'fail'
+
+    // 제품명 중복 에러
+    if (error.response.status === 500) {
+      errorMessage.value = '제품명이 중복됩니다.'
+      return
+    }
+    // 그외 에러
+    errorMessage.value = error.response?.data?.message || '제품 등록 중 오류가 발생했습니다.' // 에러 메시지 추출
+  } finally {
+    // 성공 메시지
+    isModal.open()
+
+    // 모달 닫기
+    setTimeout(() => {
+      isModal.close()
+      emit('close')
+    }, 1500)
+  }
 }
 </script>
 

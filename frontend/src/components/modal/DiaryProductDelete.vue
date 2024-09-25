@@ -1,5 +1,6 @@
 <template>
-  <div class="card">
+  <AlertModal v-if="isModal.isOpen.value" :status="status" type="delete" :error-message="errorMessage" />
+  <div v-else class="card">
     <div class="header">
       <h2>제품 삭제</h2>
     </div>
@@ -32,24 +33,45 @@
 
 <script setup>
 import { authInstance } from '@/api/authApi'
-import {  ref } from 'vue'
+import { ref } from 'vue'
 import { useProductList } from '../../stores/product'
+import { useModal } from '@/util/useModal'
+import AlertModal from '../AlertModal.vue'
 defineEmits(['close'])
+
+// 삭제여부
+const status = ref('success')
+const errorMessage = ref('')
+const isModal = useModal()
 
 const productList = useProductList()
 const selectedIds = ref([])
 
 async function removeDelete() {
-  // 선택된 모든 ID에 대해 삭제 요청
-  for (const id of selectedIds.value) {
-    await authInstance(`/product/${id}`).delete('')
+  try {
+    // 선택된 모든 ID에 대해 삭제 요청
+    for (const id of selectedIds.value) {
+      await authInstance(`/product/${id}`).delete('')
+    }
+    // 삭제 후 선택된 ID 배열로 제품명 목록 갱신
+    productList.productNameList = productList.productNameList.filter(
+      (item) => !selectedIds.value.includes(item.id)
+    )
+    // 선택된 ID 배열 초기화
+    selectedIds.value = []
+  } catch (error) {
+    status.value = 'fail'
+    if (error.response.status === 500) {
+      errorMessage.value = '삭제할 수 없는 데이터가 존재합니다.'
+    }
+  } finally {
+    isModal.open()
+    // 모달 닫기
+    setTimeout(() => {
+      isModal.close()
+    }, 1500)
   }
-  // 삭제 후 선택된 ID 배열 초기화
-  selectedIds.value = []
-  // 제품명 목록 갱신
-  productList.productNameList = productList.productNameList.filter(item => !selectedIds.value.includes(item.id))
 }
-
 </script>
 
 <style lang="scss" scoped>
