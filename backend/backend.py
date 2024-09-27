@@ -78,8 +78,8 @@ def delete_product(id):
     try:
         with connection.cursor() as cursor:
             # 1. 해당 제품명(id)을 참조하는 모든 제품을 먼저 삭제
-            delete_products_sql = "DELETE FROM product WHERE product_name_id = %s"
-            cursor.execute(delete_products_sql, (id,))
+            # delete_products_sql = "DELETE FROM product WHERE product_name_id = %s"
+            # cursor.execute(delete_products_sql, (id,))
             
             # 2. 이제 product_name을 삭제
             delete_product_name_sql = "DELETE FROM product_name WHERE id = %s"
@@ -89,6 +89,9 @@ def delete_product(id):
             return jsonify({'message': '제품삭제 성공'})
         else:
             return jsonify({'message': '제품을 찾을 수 없습니다!'}), 404
+    except Exception as e:
+        connection.rollback()
+        return jsonify({'message': str(e)}),500
     finally:
         connection.close()
 
