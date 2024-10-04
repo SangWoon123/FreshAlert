@@ -11,31 +11,35 @@
         <v-text-field v-model="searchQuery" label="검색" density="compact" variant="outlined">
         </v-text-field>
       </div>
-      <div class="nav">
-        <span>제품명</span>
-        <span>유통기한</span>
-        <span>개수</span>
-        <span>꺼냄여부 ✅</span>
-      </div>
-      <v-divider thickness="3px"></v-divider>
 
-      <!-- 유통기한 제품리스트 -->
-      <div v-for="(item, index) in filteredProductList" :key="index">
-        <!-- 날짜구분선 -->
-        <div class="date" v-if="item.isNewDate">
-          <div>{{ item.expiration }}</div>
-          <v-divider color="#3F51B5" thickness="1px"></v-divider>
-        </div>
-        <!-- 유제품 리스트 -->
-        <div class="list">
-          <div class="list-item">
-            <span>{{ item.name }}</span>
-            <span>{{ item.expiration }}</span>
-            <span>{{ item.quantity }}</span>
-            <input type="checkbox" :disabled="isChecked(item.expiration)" />
-          </div>
-        </div>
-      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>제품명</th>
+            <th width="100px">유통기한</th>
+            <th>개수</th>
+            <th width="75px">꺼냄여부 ✅</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- 유통기한 제품리스트 -->
+          <template v-for="(item, index) in filteredProductList" :key="index">
+            <!-- 날짜구분선 -->
+            <div class="date" v-if="item.isNewDate">
+              <span>{{ item.expiration }}</span>
+            </div>
+            <!-- 유제품 리스트 -->
+            <tr class="list">
+              <td>{{ item.name }}</td>
+              <td>{{ item.expiration }}</td>
+              <td>{{ item.quantity }}</td>
+              <td>
+                <input id="check_btn" type="checkbox" :disabled="isChecked(item.expiration)" />
+              </td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
 
       <div class="footer">
         <CustomButton
@@ -173,52 +177,13 @@ onMounted(async () => {
     gap: 10px;
   }
 
-  .nav {
-    font-size: 12px;
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
-    padding-bottom: 10px;
-    :nth-child(1) {
-      display: flex;
-      justify-content: center;
-      flex: 2;
-    }
-    :nth-child(2) {
-      display: flex;
-      justify-content: center;
-      flex: 4;
-    }
-    :nth-child(3) {
-      display: flex;
-      flex: 1;
-    }
-  }
-
   .list {
-    display: flex;
-    flex-direction: column;
+    font-size: 12px;
+    color: black;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
     gap: 10px;
     overflow-y: auto;
     max-height: 90%;
-    :nth-child(1) {
-      display: flex;
-      justify-content: center;
-      flex: 2;
-    }
-    :nth-child(2) {
-      display: flex;
-      justify-content: center;
-      flex: 4;
-    }
-    :nth-child(3) {
-      display: flex;
-      flex: 1;
-    }
-    :nth-child(4) {
-      display: flex;
-      flex: 1;
-    }
     .list-item {
       font-size: 12px;
       display: flex;
@@ -230,23 +195,13 @@ onMounted(async () => {
       font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
     }
   }
-  .date {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    :nth-child(1) {
-      width: 200px;
-      padding: 1rem;
-      color: #3f51b5;
-    }
-  }
   .footer {
     width: 100%;
     height: 70px;
     position: fixed;
     bottom: 0;
     left: 0;
-    z-index: 2;
+    z-index: 1;
     border-top: 1px solid #ddd;
     background-color: #ffffff;
     display: flex;
@@ -271,5 +226,40 @@ onMounted(async () => {
     justify-content: center;
     align-items: center;
   }
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+thead {
+  border-bottom: 1px solid #ddd;
+  tr {
+    th {
+      text-align: center;
+      padding: 6px;
+    }
+  }
+}
+
+tbody {
+  tr {
+    td {
+      padding: 10px;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+    }
+  }
+  .date {
+    width: 100%;
+    display: flex;
+    padding: 14px;
+    font-size: 16px;
+    color: #3f51b5;
+  }
+}
+input  {
+  width: 18px;
+  height: 18px;
 }
 </style>
