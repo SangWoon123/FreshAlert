@@ -16,7 +16,7 @@
         <thead>
           <tr>
             <th>제품명</th>
-            <th width="100px">유통기한</th>
+            <th width="80px">유통기한</th>
             <th>개수</th>
             <th width="75px">꺼냄여부 ✅</th>
           </tr>
@@ -251,15 +251,14 @@ tbody {
     }
   }
   .date {
-    width: 100%;
     display: flex;
     padding: 14px;
     font-size: 16px;
     color: #3f51b5;
   }
 }
-input  {
-  width: 18px;
-  height: 18px;
+input {
+  width: 14px;
+  height: 14px;
 }
 </style>
