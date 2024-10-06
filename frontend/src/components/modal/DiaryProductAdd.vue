@@ -9,6 +9,13 @@
             <span>입고된 유통기한 제품을 등록하세요</span>
           </div>
           <v-card-text>
+            <!-- 카테고리 -->
+            <h4>카테고리</h4>
+            <div class="category">
+              <CategoryButton name="유제품" v-model="selectedCategory" />
+              <CategoryButton name="CJ" icon="CJ" v-model="selectedCategory" />
+            </div>
+            <!-- 제품명 등록 -->
             <h4>제품</h4>
             <div class="search-container">
               <input class="search-input" type="text" placeholder="제품명" v-model="searchQuery" />
@@ -60,6 +67,7 @@ import { useProductList } from '@/stores/product'
 import CustomSelect from '../CustomSelect.vue'
 import { useModal } from '../../util/useModal'
 import AlertModal from '../AlertModal.vue'
+import CategoryButton from '../CategoryButton.vue'
 
 // 등록성공 여부 상태값
 const isModal = useModal()
@@ -84,6 +92,9 @@ function selectProduct(item) {
   selectedProduct.value = item.id
 }
 
+//카테고리
+const selectedCategory = ref('')
+
 // 제품명, 개수, 유통기한 상태 관리
 const productNames = ref([])
 const selectedProduct = ref(null)
@@ -99,10 +110,17 @@ const productStroe = useProductList()
 
 async function add() {
   try {
+    console.log({
+      name_id: selectedProduct.value,
+      quantity: selectedQuantity.value,
+      expiration: date.value,
+      category: selectedCategory.value
+    })
     const response = await authInstance('/product').post('', {
       name_id: selectedProduct.value,
       quantity: selectedQuantity.value,
-      expiration: date.value
+      expiration: date.value,
+      category: selectedCategory.value
     })
 
     const expiration = dateUtil().showDate(date.value)
@@ -192,5 +210,9 @@ onMounted(async () => {
   border-top: 1px solid #ddd;
   color: #757575;
   cursor: pointer;
+}
+.category {
+  display: flex;
+  gap: 0.5rem;
 }
 </style>
