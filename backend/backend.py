@@ -103,7 +103,7 @@ def get_products():
     try:
         with connection.cursor() as cursor:
             sql = """
-            SELECT p.id, pn.name, p.quantity, p.expiration, p.checked 
+            SELECT p.id, pn.name, p.quantity, p.expiration 
             FROM product p 
             JOIN product_name pn ON p.product_name_id = pn.id 
             WHERE p.expiration > curdate() AND p.expiration < curdate() + INTERVAL 7 DAY
@@ -116,7 +116,6 @@ def get_products():
             'name': p['name'],
             'quantity': p['quantity'],
             'expiration': p['expiration'].strftime('%Y-%m-%d'),
-            'checked': p['checked']
         } for p in products])
     finally:
         connection.close()
@@ -129,17 +128,59 @@ def add_product():
     try:
         with connection.cursor() as cursor:
             sql = """
-            INSERT INTO product (product_name_id, quantity, expiration, created_at) 
-            VALUES (%s, %s, %s, %s)
+            INSERT INTO product (product_name_id, quantity, expiration, category_id, created_at) 
+            VALUES (%s, %s, %s, %s,%s)
             """
             cursor.execute(sql, (
                 data['name_id'],
                 data['quantity'],
                 data['expiration'],
+                data['category_id'],
                 datetime.now()
             ))
         connection.commit()
         return jsonify({'message': '제품등록 성공!'})
+    finally:
+        connection.close()
+
+# 모든 카테고리 조회
+@app.route('/category',methods=['GET'])
+def get_categorys():
+    connection = get_db_connection()
+    try:
+        with connection.cursor() as cursor:
+            sql='''
+            SELECT id,name,diary
+            FROM category
+            '''
+            cursor.execute(sql)
+            categorys = cursor.fetchall()
+            return jsonify([{
+            'id': c['id'],
+            'name': c['name'],
+            'diary': c['diary']
+        } for c in categorys])
+
+    finally:
+        connection.close()
+# 카테고리 추가
+@app.route('/category', methods=['POST'])
+def add_category():
+    data = request.get_json()
+    connection = get_db_connection()
+    try:
+        with connection.cursor() as cursor:
+            sql = """
+            INSERT INTO category (name,diary) 
+            VALUES (%s, %s)
+            """
+            cursor.execute(sql, (
+                data['name'],
+                data['diary']
+            ))
+            inserted_id = cursor.lastrowid # 마지막 삽입된 id
+            connection.commit()
+            return jsonify({'id': inserted_id,'name': data['name'],'diary':data['diary']})
     finally:
         connection.close()
 
