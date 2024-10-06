@@ -4,7 +4,13 @@
     <div v-else>
       <!-- 헤더 -->
       <div class="header">
-        <h2>재고파악</h2>
+        <ToggleMenu />
+      </div>
+
+      <!-- 카테고리 선택 -->
+      <div class="category">
+        <CategoryButton name="유제품" />
+        <CategoryButton name="CJ" icon="CJ" />
       </div>
       <!-- 검색창 -->
       <div class="search">
@@ -92,6 +98,8 @@ import { useModal } from '@/util/useModal'
 import { authInstance } from '@/api/authApi'
 import { useProductList } from '@/stores/product'
 import { onMounted } from 'vue'
+import CategoryButton from '../CategoryButton.vue'
+import ToggleMenu from '../ToggleMenu.vue'
 
 // 로딩
 const isLoading = ref(true)
@@ -168,9 +176,10 @@ onMounted(async () => {
   .header {
     display: flex;
     justify-content: space-between;
+    margin-bottom: 55px;
   }
   h2 {
-    margin-bottom: 20px;
+    margin-bottom: 14px;
   }
   .search {
     display: flex;
@@ -260,5 +269,9 @@ tbody {
 input {
   width: 14px;
   height: 14px;
+}
+.category {
+  display: flex;
+  gap: 10px;
 }
 </style>
