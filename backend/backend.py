@@ -1,7 +1,7 @@
 import pymysql
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from datetime import datetime
+from datetime import datetime,timedelta
 import os
 
 app = Flask(__name__)
@@ -110,6 +110,37 @@ def get_products():
             ORDER BY p.expiration
             """
             cursor.execute(sql)
+            products = cursor.fetchall()
+        return jsonify([{
+            'id': p['id'],
+            'name': p['name'],
+            'quantity': p['quantity'],
+            'expiration': p['expiration'].strftime('%Y-%m-%d'),
+        } for p in products])
+    finally:
+        connection.close()
+
+# 카테고리 제품 조회
+@app.route('/products/category/<int:category_id>/<int:category_diary>', methods=['GET'])
+def get_products_category(category_id,category_diary):
+    connection = get_db_connection()
+    # 오늘 날짜로부터 diary 값만큼 월을 더한 날짜 계산
+    diary_date = datetime.today() + timedelta(days=category_diary * 30)
+
+    try:
+        with connection.cursor() as cursor:
+            sql = """
+            SELECT p.id, pn.name, p.quantity, p.expiration 
+            FROM product p 
+            JOIN product_name pn ON p.product_name_id = pn.id 
+            JOIN category c ON p.category_id = c.id
+            WHERE c.id = %s AND 
+            p.expiration >= %s AND p.expiration < %s 
+            ORDER BY p.expiration
+            """
+            # diary_date와 diary_date + 7일을 파라미터로 전달
+            end_date = diary_date + timedelta(days=7)  
+            cursor.execute(sql, (category_id, diary_date, end_date))
             products = cursor.fetchall()
         return jsonify([{
             'id': p['id'],
