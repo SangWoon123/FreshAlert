@@ -1,20 +1,20 @@
 <template>
-  <button 
-  class="container" 
-  :style="{backgroundColor: isActive ? 'cornflowerblue' : '#f5f5f5'}"
-  @click="handleClick">
-    <img v-if="icon" width="20px" :src="getImageUrl(icon)" alt="icon" />
-    <span>{{ name }}</span>
+  <button
+    :class="['container', isActive]"
+    :style="{ backgroundColor: isActive ? 'cornflowerblue' : '#f5f5f5' }"
+    @click="handleClick"
+  >
+    <span>{{ item.name }}</span>
   </button>
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue'
+import { useCategory } from '@/stores/category'
 
 const props = defineProps({
-  name: {
-    type: String,
-    default: '버튼'
+  item: {
+    type: Object
   },
   icon: {
     type: String,
@@ -26,11 +26,16 @@ const props = defineProps({
   }
 })
 
-const isActive = computed(() => props.modelValue === props.name)
+const categoryStore = useCategory()
+const isActive = computed(() => props.modelValue === props.item)
+
+const isSelected = ref(props.modelValue)
 
 const emit = defineEmits(['update:modelValue'])
 const handleClick = () => {
-  emit('update:modelValue', props.name)
+  isSelected.value = !isSelected.value
+  emit('update:modelValue', props.item)
+  categoryStore.selectedCategory = props.item
 }
 
 const getImageUrl = (icon) => {
@@ -53,5 +58,8 @@ const getImageUrl = (icon) => {
   align-items: center;
   gap: 4px;
   border-radius: 8px;
+}
+.container.selected {
+  background-color: #3e8f88;
 }
 </style>
