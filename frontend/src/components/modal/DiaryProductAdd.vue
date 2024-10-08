@@ -12,8 +12,13 @@
             <!-- 카테고리 -->
             <h4>카테고리</h4>
             <div class="category">
-              <CategoryButton name="유제품" v-model="selectedCategory" />
-              <CategoryButton name="CJ" icon="CJ" v-model="selectedCategory" />
+              <div
+                v-for="item in categoryStore.categoryList"
+                :key="item.id"
+                :class="{ 'selected-category': item.name === selectedCategory }"
+              >
+                <CategoryButton :item="item" v-model="selectedCategory" />
+              </div>
             </div>
             <!-- 제품명 등록 -->
             <h4>제품</h4>
@@ -68,6 +73,7 @@ import CustomSelect from '../CustomSelect.vue'
 import { useModal } from '../../util/useModal'
 import AlertModal from '../AlertModal.vue'
 import CategoryButton from '../CategoryButton.vue'
+import { useCategory } from '@/stores/category'
 
 // 등록성공 여부 상태값
 const isModal = useModal()
@@ -94,6 +100,7 @@ function selectProduct(item) {
 
 //카테고리
 const selectedCategory = ref('')
+const categoryStore = useCategory()
 
 // 제품명, 개수, 유통기한 상태 관리
 const productNames = ref([])
@@ -110,17 +117,11 @@ const productStroe = useProductList()
 
 async function add() {
   try {
-    console.log({
-      name_id: selectedProduct.value,
-      quantity: selectedQuantity.value,
-      expiration: date.value,
-      category: selectedCategory.value
-    })
     const response = await authInstance('/product').post('', {
       name_id: selectedProduct.value,
       quantity: selectedQuantity.value,
       expiration: date.value,
-      category: selectedCategory.value
+      category_id: selectedCategory.value.id
     })
 
     const expiration = dateUtil().showDate(date.value)
@@ -128,8 +129,7 @@ async function add() {
     const data = {
       name: productNames.value.filter((product) => product.id === selectedProduct.value)[0].name,
       quantity: selectedQuantity.value,
-      expiration: expiration,
-      checked: false
+      expiration: expiration
     }
 
     // 유통기한이 동일한 제품 목록을 찾음
@@ -212,7 +212,14 @@ onMounted(async () => {
   cursor: pointer;
 }
 .category {
+  overflow-x: auto;
   display: flex;
-  gap: 0.5rem;
+  margin-bottom: 10px;
+  gap: 10px;
+}
+.selected-category {
+  background-color: #3e8f88;
+  border-radius: 10px;
+  height: 20px;
 }
 </style>
