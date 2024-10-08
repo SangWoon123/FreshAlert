@@ -4,150 +4,32 @@
     <div v-else>
       <!-- 헤더 -->
       <div class="header">
-        <ToggleMenu />
+        <ToggleMenu @categoryChanged="handleCategory" />
       </div>
-
-      <!-- 카테고리 선택 -->
-      <div class="category">
-        <CategoryButton name="유제품" />
-        <CategoryButton name="CJ" icon="CJ" />
-      </div>
-      <!-- 검색창 -->
-      <div class="search">
-        <v-text-field v-model="searchQuery" label="검색" density="compact" variant="outlined">
-        </v-text-field>
-      </div>
-
-      <table>
-        <thead>
-          <tr>
-            <th>제품명</th>
-            <th width="80px">유통기한</th>
-            <th>개수</th>
-            <th width="75px">꺼냄여부 ✅</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- 유통기한 제품리스트 -->
-          <template v-for="(item, index) in filteredProductList" :key="index">
-            <!-- 날짜구분선 -->
-            <div class="date" v-if="item.isNewDate">
-              <span>{{ item.expiration }}</span>
-            </div>
-            <!-- 유제품 리스트 -->
-            <tr class="list">
-              <td>{{ item.name }}</td>
-              <td>{{ item.expiration }}</td>
-              <td>{{ item.quantity }}</td>
-              <td>
-                <input id="check_btn" type="checkbox" :disabled="isChecked(item.expiration)" />
-              </td>
-            </tr>
-          </template>
-        </tbody>
-      </table>
-
-      <div class="footer">
-        <CustomButton
-          color="#3E8F88"
-          icon
-          name="유통기한"
-          type="추가하기"
-          @click="openDiaryModal"
-        />
-        <CustomButton
-          color="#3E8F88"
-          icon
-          name="제품명"
-          type="추가하기"
-          @click="openProductModal"
-        />
-        <CustomButton color="#C2546E" name="제품명" type="삭제하기" @click="openDeleteModal" />
-      </div>
-
-      <!-- 팝업배경흐리게 -->
-      <div v-if="productModal.isOpen.value" class="backdrop">
-        <div class="add-dialog" @click.stop>
-          <ProductNameAdd @close="closeProductModal" />
-        </div>
-      </div>
-
-      <div v-if="diaryModal.isOpen.value" class="backdrop">
-        <div class="add-dialog" @click.stop>
-          <DiaryProductAdd @close="closeDiaryModal" />
-        </div>
-      </div>
-
-      <div v-if="deleteModal.isOpen.value" class="backdrop">
-        <div class="add-dialog">
-          <DiaryProductDelete @close="closeDeleteModal" />
-        </div>
-      </div>
+      <!-- 컴포넌트 -->
+      <component :is="currentComponent" />
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
-import ProductNameAdd from '../modal/ProductNameAdd.vue'
+import { ref } from 'vue'
+import ProductAction from '../content/ProductAction.vue'
 import LoadingPage from '@/components/view/Loading.vue'
-import DiaryProductAdd from '../modal/DiaryProductAdd.vue'
-import DiaryProductDelete from '../modal/DiaryProductDelete.vue'
-import CustomButton from '../CustomButton.vue'
-import { useModal } from '@/util/useModal'
 import { authInstance } from '@/api/authApi'
 import { useProductList } from '@/stores/product'
 import { onMounted } from 'vue'
-import CategoryButton from '../CategoryButton.vue'
 import ToggleMenu from '../ToggleMenu.vue'
+import CategoryAdd from '../CategoryAdd.vue'
+import { useCategory } from '@/stores/category'
 
 // 로딩
 const isLoading = ref(true)
-//모달 상태
-const productModal = useModal()
-const diaryModal = useModal()
-const deleteModal = useModal()
 // 상태관리
 const productStore = useProductList()
-
-// 모달제어함수
-const openProductModal = () => productModal.open()
-const closeProductModal = () => productModal.close()
-
-const openDiaryModal = () => diaryModal.open()
-const closeDiaryModal = () => diaryModal.close()
-
-const openDeleteModal = () => deleteModal.open()
-const closeDeleteModal = () => deleteModal.close()
-
-// 오늘 날짜 + 1일을 계산하는 함수
-const getTomorrow = () => {
-  const today = new Date()
-  today.setDate(today.getDate() + 1)
-  return today.toISOString().split('T')[0]
-}
-
-// 제품의 만료일이 내일인 경우만 셀력션 활성화
-const isChecked = (expiration) => {
-  return expiration !== getTomorrow()
-}
-
-// 검색
-const searchQuery = ref('')
-// 검색어 필터링 추가 및 날짜 변화지점 확인
-const filteredProductList = computed(() => {
-  let previousDate = null
-  return productStore.productList
-    .filter((item) => item.name.toLowerCase().includes(searchQuery.value.toLowerCase()))
-    .map((item) => {
-      const isNewDate = previousDate !== item.expiration
-      previousDate = item.expiration
-      return {
-        ...item,
-        isNewDate
-      }
-    })
-})
+const categoryStore = useCategory()
+// 컴포넌트
+const currentComponent = ref(ProductAction)
 
 onMounted(async () => {
   try {
@@ -159,12 +41,24 @@ onMounted(async () => {
     productStore.productNameList = productNames.data
     // 날짜 리스트
     productStore.updateDateList()
+    // 카테고리 리스트
+    const categorys = await authInstance('/category').get('')
+    categoryStore.categoryList = categorys.data
+
   } catch (error) {
     console.error('데이터 로드 실패:', error)
   } finally {
     isLoading.value = false
   }
 })
+
+const handleCategory = (category) => {
+  if (category === 'home') {
+    currentComponent.value = ProductAction
+  } else if (category === 'category') {
+    currentComponent.value = CategoryAdd
+  }
+}
 </script>
 
 <style lang="scss" scoped>
@@ -178,100 +72,5 @@ onMounted(async () => {
     justify-content: space-between;
     margin-bottom: 55px;
   }
-  h2 {
-    margin-bottom: 14px;
-  }
-  .search {
-    display: flex;
-    gap: 10px;
-  }
-
-  .list {
-    font-size: 12px;
-    color: black;
-    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
-    gap: 10px;
-    overflow-y: auto;
-    max-height: 90%;
-    .list-item {
-      font-size: 12px;
-      display: flex;
-      padding: 10px;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid #ddd;
-      color: black;
-      font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
-    }
-  }
-  .footer {
-    width: 100%;
-    height: 70px;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    z-index: 1;
-    border-top: 1px solid #ddd;
-    background-color: #ffffff;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-  }
-
-  .backdrop {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(0, 0, 0, 0.5); /* 뒷배경 흐리게 */
-    z-index: 1;
-  }
-  .add-dialog {
-    padding: 10px;
-    z-index: 2;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-}
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 12px;
-}
-thead {
-  border-bottom: 1px solid #ddd;
-  tr {
-    th {
-      text-align: center;
-      padding: 6px;
-    }
-  }
-}
-
-tbody {
-  tr {
-    td {
-      padding: 10px;
-      text-align: center;
-      border-bottom: 1px solid #ddd;
-    }
-  }
-  .date {
-    display: flex;
-    padding: 14px;
-    font-size: 16px;
-    color: #3f51b5;
-  }
-}
-input {
-  width: 14px;
-  height: 14px;
-}
-.category {
-  display: flex;
-  gap: 10px;
 }
 </style>
