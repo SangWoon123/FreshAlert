@@ -9,6 +9,18 @@
             <span>입고된 유통기한 제품을 등록하세요</span>
           </div>
           <v-card-text>
+            <!-- 카테고리 -->
+            <h4>카테고리</h4>
+            <div class="category">
+              <div
+                v-for="item in categoryStore.categoryList"
+                :key="item.id"
+                :class="{ 'selected-category': item.name === selectedCategory }"
+              >
+                <CategoryButton :item="item" v-model="selectedCategory" />
+              </div>
+            </div>
+            <!-- 제품명 등록 -->
             <h4>제품</h4>
             <div class="search-container">
               <input class="search-input" type="text" placeholder="제품명" v-model="searchQuery" />
@@ -60,6 +72,8 @@ import { useProductList } from '@/stores/product'
 import CustomSelect from '../CustomSelect.vue'
 import { useModal } from '../../util/useModal'
 import AlertModal from '../AlertModal.vue'
+import CategoryButton from '../CategoryButton.vue'
+import { useCategory } from '@/stores/category'
 
 // 등록성공 여부 상태값
 const isModal = useModal()
@@ -84,6 +98,10 @@ function selectProduct(item) {
   selectedProduct.value = item.id
 }
 
+//카테고리
+const selectedCategory = ref('')
+const categoryStore = useCategory()
+
 // 제품명, 개수, 유통기한 상태 관리
 const productNames = ref([])
 const selectedProduct = ref(null)
@@ -102,7 +120,8 @@ async function add() {
     const response = await authInstance('/product').post('', {
       name_id: selectedProduct.value,
       quantity: selectedQuantity.value,
-      expiration: date.value
+      expiration: date.value,
+      category_id: selectedCategory.value.id
     })
 
     const expiration = dateUtil().showDate(date.value)
@@ -110,8 +129,7 @@ async function add() {
     const data = {
       name: productNames.value.filter((product) => product.id === selectedProduct.value)[0].name,
       quantity: selectedQuantity.value,
-      expiration: expiration,
-      checked: false
+      expiration: expiration
     }
 
     // 유통기한이 동일한 제품 목록을 찾음
@@ -192,5 +210,16 @@ onMounted(async () => {
   border-top: 1px solid #ddd;
   color: #757575;
   cursor: pointer;
+}
+.category {
+  overflow-x: auto;
+  display: flex;
+  margin-bottom: 10px;
+  gap: 10px;
+}
+.selected-category {
+  background-color: #3e8f88;
+  border-radius: 10px;
+  height: 20px;
 }
 </style>

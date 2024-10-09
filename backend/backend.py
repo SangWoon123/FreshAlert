@@ -1,7 +1,7 @@
 import pymysql
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from datetime import datetime
+from datetime import datetime,timedelta
 import os
 
 app = Flask(__name__)
@@ -103,7 +103,7 @@ def get_products():
     try:
         with connection.cursor() as cursor:
             sql = """
-            SELECT p.id, pn.name, p.quantity, p.expiration, p.checked 
+            SELECT p.id, pn.name, p.quantity, p.expiration 
             FROM product p 
             JOIN product_name pn ON p.product_name_id = pn.id 
             WHERE p.expiration > curdate() AND p.expiration < curdate() + INTERVAL 7 DAY
@@ -116,7 +116,37 @@ def get_products():
             'name': p['name'],
             'quantity': p['quantity'],
             'expiration': p['expiration'].strftime('%Y-%m-%d'),
-            'checked': p['checked']
+        } for p in products])
+    finally:
+        connection.close()
+
+# 카테고리 제품 조회
+@app.route('/products/category/<int:category_id>/<int:category_diary>', methods=['GET'])
+def get_products_category(category_id,category_diary):
+    connection = get_db_connection()
+    # 오늘 날짜로부터 diary 값만큼 월을 더한 날짜 계산
+    diary_date = datetime.today() + timedelta(days=category_diary * 30)
+
+    try:
+        with connection.cursor() as cursor:
+            sql = """
+            SELECT p.id, pn.name, p.quantity, p.expiration 
+            FROM product p 
+            JOIN product_name pn ON p.product_name_id = pn.id 
+            JOIN category c ON p.category_id = c.id
+            WHERE c.id = %s AND 
+            p.expiration >= %s AND p.expiration < %s 
+            ORDER BY p.expiration
+            """
+            # diary_date와 diary_date + 7일을 파라미터로 전달
+            end_date = diary_date + timedelta(days=7)  
+            cursor.execute(sql, (category_id, diary_date, end_date))
+            products = cursor.fetchall()
+        return jsonify([{
+            'id': p['id'],
+            'name': p['name'],
+            'quantity': p['quantity'],
+            'expiration': p['expiration'].strftime('%Y-%m-%d'),
         } for p in products])
     finally:
         connection.close()
@@ -129,17 +159,59 @@ def add_product():
     try:
         with connection.cursor() as cursor:
             sql = """
-            INSERT INTO product (product_name_id, quantity, expiration, created_at) 
-            VALUES (%s, %s, %s, %s)
+            INSERT INTO product (product_name_id, quantity, expiration, category_id, created_at) 
+            VALUES (%s, %s, %s, %s,%s)
             """
             cursor.execute(sql, (
                 data['name_id'],
                 data['quantity'],
                 data['expiration'],
+                data['category_id'],
                 datetime.now()
             ))
         connection.commit()
         return jsonify({'message': '제품등록 성공!'})
+    finally:
+        connection.close()
+
+# 모든 카테고리 조회
+@app.route('/category',methods=['GET'])
+def get_categorys():
+    connection = get_db_connection()
+    try:
+        with connection.cursor() as cursor:
+            sql='''
+            SELECT id,name,diary
+            FROM category
+            '''
+            cursor.execute(sql)
+            categorys = cursor.fetchall()
+            return jsonify([{
+            'id': c['id'],
+            'name': c['name'],
+            'diary': c['diary']
+        } for c in categorys])
+
+    finally:
+        connection.close()
+# 카테고리 추가
+@app.route('/category', methods=['POST'])
+def add_category():
+    data = request.get_json()
+    connection = get_db_connection()
+    try:
+        with connection.cursor() as cursor:
+            sql = """
+            INSERT INTO category (name,diary) 
+            VALUES (%s, %s)
+            """
+            cursor.execute(sql, (
+                data['name'],
+                data['diary']
+            ))
+            inserted_id = cursor.lastrowid # 마지막 삽입된 id
+            connection.commit()
+            return jsonify({'id': inserted_id,'name': data['name'],'diary':data['diary']})
     finally:
         connection.close()
 
