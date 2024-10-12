@@ -95,6 +95,26 @@ def delete_product(id):
     finally:
         connection.close()
 
+# 카테고리 제품 삭제
+@app.route('/products/category/<int:category_id>', methods=['DELETE'])
+def delete_products_category(category_id):
+    connection = get_db_connection()
+    try:
+        with connection.cursor() as cursor:
+            sql = """
+            DELETE FROM category WHERE id= %s
+            """
+            cursor.execute(sql, (category_id))
+            connection.commit()
+            return jsonify({'message': '카테고리 삭제 성공'})
+    except Exception as e:
+        connection.rollback()
+        return jsonify({'message': str(e)}),500
+    finally:
+        connection.close()
+
+
+
 # 제품 조회
 @app.route('/products', methods=['GET'])
 def get_products():
