@@ -1,5 +1,6 @@
 <template>
-  <div class="container">
+  <AlertModal v-if="isModal.isOpen.value" @close="isModal.close()" :status="status" />
+  <div v-else class="container">
     <div class="card">
       <!-- 제목 -->
       <h4>카테고리 등록</h4>
@@ -20,6 +21,7 @@
           <tr>
             <th>제품 브랜드</th>
             <th>유통기한(개월)</th>
+            <th>지우기</th>
           </tr>
         </thead>
         <tbody>
@@ -27,6 +29,7 @@
             <tr>
               <td>{{ item.name }}</td>
               <td>{{ item.diary }}</td>
+              <td><button type="button" @click="deleteCategory(item.id)">x</button></td>
             </tr>
           </template>
         </tbody>
@@ -39,23 +42,59 @@
 import { ref } from 'vue'
 import { authInstance } from '@/api/authApi'
 import { useCategory } from '@/stores/category'
+import { useModal } from '@/util/useModal'
 
 const name = ref(null)
 const diary = ref(null)
 const categoryStore = useCategory()
 
-async function addCategory() {
+// 카테고리 삭제
+async function deleteCategory(index) {
+  try {
+    console.log(index)
+    const response = await authInstance('/products/category').delete(`/${index}`)
+    categoryStore.categoryList = categoryStore.categoryList.filter(
+      (category) => category.id !== index
+    )
+    console.log('선택', response)
+  } catch (error) {
+    console.error(error)
+  } finally {
+    // isModal.open()
+    // // 모달 닫기
+    // setTimeout(() => {
+    //   isModal.close()
+    // }, 1500)
+  }
+}
+
+// 성공여부
+const isModal = useModal()
+const status = ref('success')
+const emit = defineEmits(['close'])
+
+const addCategory = async () => {
   const data = {
     name: name.value,
     diary: diary.value
   }
-  const response = await authInstance('/category').post('', data)
-
-  categoryStore.categoryList.push({
-    name: name.value,
-    diary: diary.value,
-    id: response.data.id
-  })
+  try {
+    const response = await authInstance('/category').post('', data)
+    categoryStore.categoryList.push({
+      name: name.value,
+      diary: diary.value,
+      id: response.data.id
+    })
+  } catch (error) {
+    status.value = 'fail'
+  } finally {
+    isModal.open()
+    // 모달 닫기
+    setTimeout(() => {
+      isModal.close()
+      emit('close')
+    }, 1000)
+  }
 }
 </script>
 
