@@ -4,7 +4,7 @@
     <div v-else>
       <!-- 헤더 -->
       <div class="header">
-        <ToggleMenu @categoryChanged="handleCategory" />
+        <CategorySlide @categoryChanged="handleCategory" />
       </div>
       <!-- 컴포넌트 -->
       <component :is="currentComponent" />
@@ -19,8 +19,8 @@ import LoadingPage from '@/components/view/Loading.vue'
 import { authInstance } from '@/api/authApi'
 import { useProductList } from '@/stores/product'
 import { onMounted } from 'vue'
-import ToggleMenu from '../ToggleMenu.vue'
-import CategoryAdd from '../CategoryAdd.vue'
+import CategorySlide from '../content/category/CategorySlide.vue'
+import CategoryAdd from '../content/category/CategoryAdd.vue'
 import { useCategory } from '@/stores/category'
 
 // 로딩

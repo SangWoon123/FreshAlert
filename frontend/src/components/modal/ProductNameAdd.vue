@@ -26,7 +26,7 @@
 </template>
 
 <script setup>
-import AlertModal from '../AlertModal.vue'
+import AlertModal from './alert/AlertModal.vue'
 import { authInstance } from '@/api/authApi'
 import { useProductList } from '../../stores/product'
 import { ref } from 'vue'

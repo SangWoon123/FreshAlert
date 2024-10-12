@@ -36,7 +36,7 @@ import { authInstance } from '@/api/authApi'
 import { ref } from 'vue'
 import { useProductList } from '../../stores/product'
 import { useModal } from '@/util/useModal'
-import AlertModal from '../AlertModal.vue'
+import AlertModal from './alert/AlertModal.vue'
 defineEmits(['close'])
 
 // 삭제여부

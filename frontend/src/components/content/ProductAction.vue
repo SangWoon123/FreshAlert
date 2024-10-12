@@ -77,7 +77,7 @@ import CustomButton from '../CustomButton.vue'
 import { useModal } from '@/util/useModal'
 import { useProductList } from '@/stores/product'
 import { useCategory } from '@/stores/category'
-import CategoryTabs from '../CategoryTabs.vue'
+import CategoryTabs from './category/CategoryTabs.vue'
 import { authInstance } from '@/api/authApi'
 
 // 카테고리 선택 상태

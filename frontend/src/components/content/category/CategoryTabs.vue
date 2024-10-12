@@ -11,7 +11,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useCategory } from '@/stores/category'
-import CategoryButton from './content/category/CategoryButton.vue'
+import CategoryButton from './CategoryButton.vue';
 
 const categoryStore = useCategory()
 const categoryList = categoryStore.categoryList

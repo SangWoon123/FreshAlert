@@ -71,8 +71,8 @@ import { dateUtil } from '@/util/dateUtil'
 import { useProductList } from '@/stores/product'
 import CustomSelect from '../CustomSelect.vue'
 import { useModal } from '../../util/useModal'
-import AlertModal from '../AlertModal.vue'
-import CategoryButton from '../CategoryButton.vue'
+import AlertModal from './alert/AlertModal.vue'
+import CategoryButton from '../content/category/CategoryButton.vue'
 import { useCategory } from '@/stores/category'
 
 // 등록성공 여부 상태값
