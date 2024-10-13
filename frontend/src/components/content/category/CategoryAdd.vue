@@ -51,11 +51,10 @@ const categoryStore = useCategory()
 // 카테고리 삭제
 async function deleteCategory(index) {
   try {
-    console.log(index)
     const response = await authInstance('/products/category').delete(`/${index}`)
-    categoryStore.categoryList = categoryStore.categoryList.filter(
-      (category) => category.id !== index
-    )
+    categoryStore.categoryList = [
+      ...categoryStore.categoryList.filter((category) => category.id !== index)
+    ]
     console.log('선택', response)
   } catch (error) {
     console.error(error)
