@@ -4,7 +4,7 @@
       <h3 style="color: lightgrey">내가 담당해요</h3>
       <h1>스몰벗의 매장관리</h1>
 
-      <div style="width: 100%; display: flex; align-items: center; justify-content: center">
+      <div style="width: 80%; display: flex; align-items: center; justify-content: center">
         <input
           placeholder="매장 코드를 입력하세요"
           variant="solo-filled"

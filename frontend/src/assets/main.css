@@ -3,9 +3,7 @@
 #app {
   max-width: 100%; /* Z 플립의 너비에 맞춤 */
   width: 100%;
-  margin: 0 auto;
   background-color: #ffffff;
   color: #4ed3b0;
   font-family: 'dohyeon';
-  padding: 1rem;
 }
