@@ -79,6 +79,15 @@ function addProduct() {
   margin: 0.5rem;
 }
 
+.title {
+  padding: 1rem;
+  padding-bottom: 0;
+  color: #3e8f88;
+  span {
+    font-size: 12px;
+  }
+}
+
 .close-btn {
   position: absolute;
   top: 10px;
