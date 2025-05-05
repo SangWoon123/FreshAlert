@@ -27,7 +27,7 @@
 
 <script setup>
 import AlertModal from '../AlertModal.vue'
-import { authInstance } from '@/api/authApi'
+import { addProductName } from '@/api/authApi'
 import { useProductList } from '../../stores/product'
 import { ref } from 'vue'
 import { useModal } from '../../util/useModal'
@@ -45,10 +45,11 @@ async function submit() {
   }
   try {
     // 제품명 등록
-    const response = await authInstance('/product-name').post('', {
+    const response = await addProductName().post('/addProductName', {
       name: name.value
     })
     if (response.status === 200) {
+      console.log('제품 등록 성공: ', response.data)
       //상태관리 업데이트
       useProductList().productNameList.push({
         name: response.data.name,

@@ -22,14 +22,14 @@
 <script setup>
 import { ref } from 'vue'
 import router from '@/router'
-import { authInstance } from '@/api/authApi'
+import { loginAPI } from '@/api/authApi'
 
 const code = ref('')
 
 async function auth() {
   try {
     // 로그인 검증 로직 추가
-    const response = await authInstance('/login').post('', {
+    const response = await loginAPI('/login').post('', {
       code: code.value
     })
 

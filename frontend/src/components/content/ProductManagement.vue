@@ -1,4 +1,11 @@
 <template>
+  <AlertModal
+    style="position: absolute"
+    v-if="isModal.isOpen.value"
+    @close="isModal.close()"
+    :status="status"
+    :error-message="errorMessage"
+  />
   <div class="expanded-content">
     <v-btn icon="mdi-close" class="close-btn" @click="$emit('close')" />
     <div class="title">
@@ -8,7 +15,7 @@
 
     <h4>제품</h4>
     <div class="search-container">
-      <input class="search-input" type="text" placeholder="제품명" v-model="searchQuery" />
+      <input class="search-input" type="text" placeholder="제품명" v-model="name" />
     </div>
 
     <v-btn
@@ -24,18 +31,58 @@
 </template>
 
 <script setup>
+import { addProductName } from '@/api/authApi'
+import { useProductList } from '@/stores/product'
+import { useModal } from '@/util/useModal'
 import { ref } from 'vue'
 
-const searchQuery = ref('')
+const isModal = useModal()
+const status = ref('success')
+const emit = defineEmits(['close'])
 
-function addProduct() {
-  if (!searchQuery.value) {
+const name = ref('')
+const errorMessage = ref('')
+
+async function addProduct() {
+  if (!name.value) {
     alert('제품명을 입력해주세요.')
     return
   }
 
-  console.log('제품명:', searchQuery.value)
-  searchQuery.value = ''
+  try {
+    // 제품명 등록
+    const response = await addProductName().post('/addProductName', {
+      name: name.value
+    })
+    if (response.status === 200) {
+      //상태관리 업데이트
+      useProductList().productNameList.push({
+        name: response.data.name,
+        id: response.data.id
+      })
+    }
+  } catch (error) {
+    console.error('제품 등록 오류: ', error)
+    status.value = 'fail'
+
+    // 제품명 중복 에러
+    if (error.response.status === 500) {
+      errorMessage.value = '제품명이 중복됩니다.'
+      return
+    }
+    // 그외 에러
+    errorMessage.value = error.response?.data?.message || '제품 등록 중 오류가 발생했습니다.' // 에러 메시지 추출
+  } finally {
+    // 성공 메시지
+    isModal.open()
+    name.value = ''
+
+    // 모달 닫기
+    setTimeout(() => {
+      isModal.close()
+      emit('close')
+    }, 500)
+  }
 }
 </script>
 

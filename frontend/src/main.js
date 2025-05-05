@@ -12,6 +12,7 @@ import router from './router'
 import '@/assets/font.css'
 import { ko } from 'vuetify/locale'
 import VueGtag from 'vue-gtag'
+import { VCalendar } from 'vuetify/labs/VCalendar'
 
 const app = createApp(App)
 
@@ -23,7 +24,8 @@ const vuetify = createVuetify({
   components: {
     ...components,
     directives,
-    VDateInput
+    VDateInput,
+    VCalendar
   },
   ssr: true,
   theme: {
@@ -43,12 +45,8 @@ const vuetify = createVuetify({
 app.use(createPinia())
 app.use(router)
 app.use(vuetify)
-app.use(
-  VueGtag,
-  {
-    config: { id: import.meta.env.VITE_GOOGLE_ANALYTICS }
-  }
-)
-
+app.use(VueGtag, {
+  config: { id: import.meta.env.VITE_GOOGLE_ANALYTICS }
+})
 
 app.mount('#app')
