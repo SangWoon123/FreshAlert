@@ -21,7 +21,7 @@
       </v-text-field>
     </div>
 
-    <div style="height: 100vh; display: flex; flex-direction: column">
+    <div style="height: 100vh; display: flex; flex-direction: column; padding-bottom: 80px">
       <div
         v-if="isLoading"
         style="display: flex; justify-content: center; align-items: center; height: 60vh"
@@ -67,39 +67,38 @@
           </tbody>
         </table>
       </div>
-
-      <div :class="['footer', { expanded: changeInput }]" style="z-index: 10">
-        <div v-if="!changeInput" style="display: flex; gap: 20px">
-          <v-btn
-            flat
-            variant="outlined"
-            rounded="lg"
-            width="150px"
-            height="50px"
-            @click="changeFooter"
-          >
-            <v-icon>mdi-package-variant</v-icon>
-            제품 관리
-          </v-btn>
-          <v-btn
-            flat
-            variant="outlined"
-            width="150px"
-            height="50px"
-            @click="changeFooter('expiryRegistration')"
-          >
-            <v-icon>mdi-calendar-clock</v-icon>
-            유통기한 등록
-          </v-btn>
-        </div>
-        <template v-else>
-          <ExpiryRegistration
-            v-if="selectedAction === 'expiryRegistration'"
-            @close="changeFooter('')"
-          />
-          <ProductManagement @close="changeFooter('')" v-else />
-        </template>
+    </div>
+    <div :class="['footer', { expanded: changeInput }]" style="z-index: 10">
+      <div v-if="!changeInput" style="display: flex; gap: 20px">
+        <v-btn
+          flat
+          variant="outlined"
+          rounded="lg"
+          width="150px"
+          height="50px"
+          @click="changeFooter"
+        >
+          <v-icon>mdi-package-variant</v-icon>
+          제품 관리
+        </v-btn>
+        <v-btn
+          flat
+          variant="outlined"
+          width="150px"
+          height="50px"
+          @click="changeFooter('expiryRegistration')"
+        >
+          <v-icon>mdi-calendar-clock</v-icon>
+          유통기한 등록
+        </v-btn>
       </div>
+      <template v-else>
+        <ExpiryRegistration
+          v-if="selectedAction === 'expiryRegistration'"
+          @close="changeFooter('')"
+        />
+        <ProductManagement @close="changeFooter('')" v-else />
+      </template>
     </div>
   </div>
   <EmailModal :isOpen="isEmailModalOpen" @close="closeEmailModal" />
@@ -155,8 +154,10 @@ function getRemainDays(expiration) {
 }
 function getRemainDaysText(expiration) {
   const days = getRemainDays(expiration)
-  if (days < 0) return '만료'
-  if (days === 0) return 'D-0'
+  if (days < 0) return '전날 만료'
+  if (days === 0) return '당일 만료'
+  if (days === 1) return 'D-1'
+  if (days === 2) return 'D-2'
   return `D-${days}`
 }
 
@@ -165,8 +166,6 @@ onMounted(async () => {
     // 유통기한 리스트 가져오기
     const response = await getProducts().get()
     productStore.productList = response.data
-    console.log('제품 리스트:', productStore.productList)
-    console.log('제품 리스트:', response)
     // 제품명 리스트
     const productNames = await getProductNames('').get('')
     productStore.productNameList = productNames.data
