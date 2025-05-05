@@ -32,7 +32,7 @@
 </template>
 
 <script setup>
-import { authInstance } from '@/api/authApi'
+import { deleteProductName } from '@/api/authApi'
 import { ref } from 'vue'
 import { useProductList } from '../../stores/product'
 import { useModal } from '@/util/useModal'
@@ -51,7 +51,7 @@ async function removeDelete() {
   try {
     // 선택된 모든 ID에 대해 삭제 요청
     for (const id of selectedIds.value) {
-      await authInstance(`/product/${id}`).delete('')
+      await deleteProductName(`/${id}`).delete('')
     }
     // 삭제 후 선택된 ID 배열로 제품명 목록 갱신
     productList.productNameList = productList.productNameList.filter(

@@ -1,5 +1,11 @@
 <template>
-  <AlertModal v-if="isModal.isOpen.value" @close="isModal.close()" :status="status" />
+  <AlertModal
+    v-if="isModal.isOpen.value"
+    @close="isModal.close()"
+    :status="status"
+    :error-message="errorMessage"
+  />
+
   <div v-else class="card">
     <v-row d-flex justify="center">
       <v-col cols="12" lg="6" md="8" sm="10">
@@ -10,7 +16,7 @@
           </div>
           <v-card-text>
             <!-- 카테고리 -->
-            <h4>카테고리</h4>
+            <!-- <h4>카테고리</h4>
             <div class="category">
               <div
                 v-for="item in categoryStore.categoryList"
@@ -19,7 +25,7 @@
               >
                 <CategoryButton :item="item" v-model="selectedCategory" />
               </div>
-            </div>
+            </div> -->
             <!-- 제품명 등록 -->
             <h4>제품</h4>
             <div class="search-container">
@@ -42,13 +48,13 @@
               />
               <CustomSelect :options="day" placeholder="일" v-model="selectedDay" />
             </div>
-            <h4>개수</h4>
+            <!-- <h4>개수</h4>
             <input
               type="number"
               placeholder="개수"
               class="search-input"
               v-model="selectedQuantity"
-            />
+            /> -->
           </v-card-text>
           <v-divider class="mt-12"></v-divider>
           <v-card-actions>
@@ -65,14 +71,13 @@
 </template>
 
 <script setup>
-import { authInstance } from '@/api/authApi'
+import { getProductNames, addProduct } from '@/api/authApi'
 import { computed, onMounted, ref } from 'vue'
 import { dateUtil } from '@/util/dateUtil'
 import { useProductList } from '@/stores/product'
 import CustomSelect from '../CustomSelect.vue'
 import { useModal } from '../../util/useModal'
 import AlertModal from '../AlertModal.vue'
-import CategoryButton from '../CategoryButton.vue'
 import { useCategory } from '@/stores/category'
 
 // 등록성공 여부 상태값
@@ -105,7 +110,7 @@ const categoryStore = useCategory()
 // 제품명, 개수, 유통기한 상태 관리
 const productNames = ref([])
 const selectedProduct = ref(null)
-const selectedQuantity = ref(null)
+// const selectedQuantity = ref(null)
 // 년월일
 const selectedYear = ref(null)
 const selectedMonth = ref(null)
@@ -117,18 +122,15 @@ const productStroe = useProductList()
 
 async function add() {
   try {
-    const response = await authInstance('/product').post('', {
-      name_id: selectedProduct.value,
-      quantity: selectedQuantity.value,
-      expiration: date.value,
-      category_id: selectedCategory.value.id
+    await addProduct().post('', {
+      nameId: selectedProduct.value,
+      expiration: date.value
     })
 
     const expiration = dateUtil().showDate(date.value)
 
     const data = {
       name: productNames.value.filter((product) => product.id === selectedProduct.value)[0].name,
-      quantity: selectedQuantity.value,
       expiration: expiration
     }
 
@@ -160,7 +162,7 @@ async function add() {
 }
 
 onMounted(async () => {
-  const response = await authInstance('/products-name').get()
+  const response = await getProductNames().get()
   productNames.value = response.data.map((item) => item)
 })
 </script>

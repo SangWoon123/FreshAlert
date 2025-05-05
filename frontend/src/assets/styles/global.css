@@ -1,0 +1,14 @@
+/* global.css */
+:root {
+  --main-color: #4ed3b0;
+}
+
+/* 전역에서 사용할 스타일 추가 */
+body {
+  background-color: var(--main-color);
+}
+
+button {
+  background-color: var(--main-color);
+  color: white;
+}

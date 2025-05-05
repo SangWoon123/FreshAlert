@@ -16,7 +16,7 @@
 import { ref } from 'vue'
 import ProductAction from '../content/ProductAction.vue'
 import LoadingPage from '@/components/view/Loading.vue'
-import { authInstance } from '@/api/authApi'
+import { getCategories, getProducts, getProductNames } from '@/api/authApi'
 import { useProductList } from '@/stores/product'
 import { onMounted } from 'vue'
 import ToggleMenu from '../ToggleMenu.vue'
@@ -34,17 +34,18 @@ const currentComponent = ref(ProductAction)
 onMounted(async () => {
   try {
     // 유통기한 리스트 가져오기
-    const response = await authInstance('/products').get('')
+    const response = await getProducts().get()
     productStore.productList = response.data
+    console.log('제품 리스트:', productStore.productList)
+    console.log('제품 리스트:', response)
     // 제품명 리스트
-    const productNames = await authInstance('/products-name').get('')
+    const productNames = await getProductNames('').get('')
     productStore.productNameList = productNames.data
     // 날짜 리스트
     productStore.updateDateList()
     // 카테고리 리스트
-    const categorys = await authInstance('/category').get('')
+    const categorys = await getCategories().get()
     categoryStore.categoryList = categorys.data
-
   } catch (error) {
     console.error('데이터 로드 실패:', error)
   } finally {

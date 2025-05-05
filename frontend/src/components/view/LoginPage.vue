@@ -1,19 +1,19 @@
 <template>
   <div class="login">
-    <div class="login__content">
-      <div class="login__field">
-        <h2>매니저 로그인</h2>
+    <div class="login__field">
+      <h3 style="color: lightgrey">내가 담당해요</h3>
+      <h1>스몰벗의 매장관리</h1>
 
-        <v-text-field
-          label="코드를 입력하세요"
+      <div style="width: 80%; display: flex; align-items: center; justify-content: center">
+        <input
+          placeholder="매장 코드를 입력하세요"
           variant="solo-filled"
-          density="compact"
-          class="login__input"
           v-model="code"
           type="password"
-          flat
-        ></v-text-field>
-        <v-btn variant="outlined" class="login__button" color="#3e8f88" @click="auth">로그인</v-btn>
+        />
+        <v-btn @click="auth" flat>
+          <v-icon> mdi-arrow-right-bold-outline </v-icon>
+        </v-btn>
       </div>
     </div>
   </div>
@@ -22,14 +22,14 @@
 <script setup>
 import { ref } from 'vue'
 import router from '@/router'
-import { authInstance } from '@/api/authApi'
+import { loginAPI } from '@/api/authApi'
 
 const code = ref('')
 
 async function auth() {
   try {
     // 로그인 검증 로직 추가
-    const response = await authInstance('/login').post('', {
+    const response = await loginAPI('/login').post('', {
       code: code.value
     })
 
@@ -44,23 +44,16 @@ async function auth() {
 
 <style lang="scss" scoped>
 .login {
-  height: 939px; /* Z 플립의 높이에 맞춤 */
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #3e8f88;
+  height: 100vh;
   padding: 10px;
 
   &__content {
     display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    max-width: 400px;
     padding: 1rem;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    background-color: #ffffff;
     border-radius: 8px;
   }
 
@@ -72,13 +65,12 @@ async function auth() {
     gap: 0.5rem;
     width: 100%;
   }
-
-  &__input {
+  input {
     width: 100%;
-  }
-
-  &__button {
-    width: 100%;
+    padding: 10px;
+    border: 1px solid lightgrey;
+    border-radius: 5px;
+    margin-right: 10px;
   }
 }
 </style>

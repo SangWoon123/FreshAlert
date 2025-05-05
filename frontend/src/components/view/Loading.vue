@@ -1,10 +1,14 @@
 <template>
   <div class="loading">
     <div class="loading__logo">
-      <div>
-        <p>작지만 강한 친구</p>
-        <h2>스몰벗 유제품 기한</h2>
-      </div>
+      <p>잠시만 기다려주세요...</p>
+      <v-progress-circular
+        color="#4ed3b0"
+        model-value="20"
+        :size="75"
+        :width="12"
+        indeterminate
+      ></v-progress-circular>
     </div>
   </div>
 </template>
@@ -12,7 +16,6 @@
 <style scope lang="scss">
 .loading {
   height: 900px;
-  background: #3e8f88;
   background-size: 30px 100%;
   display: flex;
   justify-content: center;
@@ -21,8 +24,10 @@
     width: 100%;
     height: 300px;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
+    gap: 1rem;
     h2,
     div {
       color: white;

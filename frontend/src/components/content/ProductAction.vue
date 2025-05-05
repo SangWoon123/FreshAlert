@@ -23,7 +23,8 @@
       </thead>
       <tbody>
         <!-- 유통기한 제품리스트 -->
-        <template v-for="(item, index) in filteredProductList" :key="index">
+        <!-- <template v-for="(item, index) in filteredProductList" :key="index"> -->
+        <template v-for="(item, index) in productStore.productList" :key="index">
           <!-- 날짜구분선 -->
           <div class="date" v-if="item.isNewDate">
             <span>{{ item.expiration }}</span>

@@ -1,55 +1,60 @@
 <template>
   <AlertModal
+    style="position: absolute"
     v-if="isModal.isOpen.value"
     @close="isModal.close()"
     :status="status"
     :error-message="errorMessage"
   />
-  <v-card v-else class="mx-auto product-card" width="344">
-    <v-card-titl color="green">
-      <h2 style="color: #3e8f88">제품등록</h2>
-    </v-card-titl>
-    <v-card-text class="text-field-box">
-      <v-text-field
-        label="제품명을 입력하세요"
-        variant="solo"
-        density="compact"
-        v-model="name"
-      ></v-text-field>
-    </v-card-text>
+  <div class="expanded-content">
+    <v-btn icon="mdi-close" class="close-btn" @click="$emit('close')" />
+    <div class="title">
+      <h3>제품 관리</h3>
+      <span>입고된 제품을 관리하세요</span>
+    </div>
 
-    <v-card-actions class="action-buttons">
-      <v-btn color="red" @click="$emit('close')">취소</v-btn>
-      <v-btn color="primary" @click="submit"> 등록 </v-btn>
-    </v-card-actions>
-  </v-card>
+    <h4>제품</h4>
+    <div class="search-container">
+      <input class="search-input" type="text" placeholder="제품명" v-model="name" />
+    </div>
+
+    <v-btn
+      style="position: absolute; bottom: 0; left: 0"
+      width="100%"
+      height="80px"
+      color="#3e8f88"
+      @click="addProduct"
+    >
+      등록
+    </v-btn>
+  </div>
 </template>
 
 <script setup>
-import AlertModal from '../AlertModal.vue'
 import { addProductName } from '@/api/authApi'
-import { useProductList } from '../../stores/product'
+import { useProductList } from '@/stores/product'
+import { useModal } from '@/util/useModal'
 import { ref } from 'vue'
-import { useModal } from '../../util/useModal'
 
-// 등록상태 성공여부
 const isModal = useModal()
 const status = ref('success')
+const emit = defineEmits(['close'])
+
+const name = ref('')
 const errorMessage = ref('')
 
-const emit = defineEmits(['close'])
-const name = ref('')
-async function submit() {
+async function addProduct() {
   if (!name.value) {
+    alert('제품명을 입력해주세요.')
     return
   }
+
   try {
     // 제품명 등록
     const response = await addProductName().post('/addProductName', {
       name: name.value
     })
     if (response.status === 200) {
-      console.log('제품 등록 성공: ', response.data)
       //상태관리 업데이트
       useProductList().productNameList.push({
         name: response.data.name,
@@ -70,36 +75,52 @@ async function submit() {
   } finally {
     // 성공 메시지
     isModal.open()
+    name.value = ''
 
     // 모달 닫기
     setTimeout(() => {
       isModal.close()
       emit('close')
-    }, 1500)
+    }, 500)
   }
 }
 </script>
 
 <style lang="scss" scoped>
-.product-card {
-  color: white;
-  padding: 16px;
-  border-radius: 8px;
-}
-
-.text-field-box {
-  display: flex;
-  justify-content: center;
-}
-
-.action-buttons {
-  display: flex;
-  align-items: center;
-  justify-content: end;
+.expanded-content {
+  padding: 0.5rem;
   width: 100%;
+  height: 100%;
+  margin: 0.5rem;
 }
-
-.v-btn {
-  border-radius: 8px;
+.title {
+  padding: 1rem;
+  padding-bottom: 0;
+  color: #3e8f88;
+  span {
+    font-size: 12px;
+  }
+}
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+.search-container {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 18px;
+}
+.search-input {
+  width: 100%;
+  height: 50px;
+  padding: 1rem;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
 }
 </style>
