@@ -11,6 +11,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@emailjs/browser": "^4.4.1",
     "@mdi/font": "^7.4.47",
     "axios": "^1.8.2",
     "firebase": "^10.13.1",
