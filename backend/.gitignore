@@ -67,3 +67,10 @@ node_modules/
 
 # dataconnect generated files
 .dataconnect
+
+./functions
+./docker
+./firebase.*
+./firebase-debug.*.log*
+./firebase-debug.log*
+./firebase-debug.log
