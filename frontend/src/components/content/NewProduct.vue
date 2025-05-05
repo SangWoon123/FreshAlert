@@ -111,7 +111,7 @@ import ExpiryRegistration from './ExpiryRegistration.vue'
 import ProductManagement from './ProductManagement.vue'
 import { computed, onMounted, ref } from 'vue'
 import { getProductNames, getProducts } from '@/api/authApi'
-import EmailModal from '../EmailModal.vue'
+import EmailModal from '@/components/modals/EmailModal.vue'
 
 const changeInput = ref(false)
 const selectedAction = ref('')
